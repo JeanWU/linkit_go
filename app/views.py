@@ -14,10 +14,10 @@ def home(request):
     return render(
         request,
         #'app/index.html',
-        'app/fitting_input.html',
+        'app/home.html',
         context_instance = RequestContext(request,
         {
-            'title':'Property Value Prediction',
+            'title':'User Log In',
             'year':datetime.now().year,
         })
     )
@@ -66,33 +66,15 @@ def T1LL_input(request):
 
 
 def T1LL_result(request):
-    crime=request.POST.get('crime')
-    zn=request.POST.get('zn')
-    inidus=request.POST.get('inidus')
-    nox=request.POST.get('nox')
-    rm=request.POST.get('rm')
-    age=request.POST.get('age')
-    dis=request.POST.get('dis')
-    rad=request.POST.get('rad')
-    tax=request.POST.get('tax')
-    ptratio=request.POST.get('ptratio')
-    Bk=request.POST.get('Bk')
-    lstat=request.POST.get('lstat')
-    optradio=request.POST.get('optradio')
-
-    MEDV_linear = linear_fitting(crime,zn,inidus,optradio,nox,rm,age,dis,rad,tax,ptratio,Bk,lstat)
-    pic_linear = linear_plot(crime,zn,inidus,optradio,nox,rm,age,dis,rad,tax,ptratio,Bk,lstat)
-    MEDV_SVR = SVR_fitting(crime,zn,inidus,optradio,nox,rm,age,dis,rad,tax,ptratio,Bk,lstat)
-    pic_SVR = SVR_plot(crime,zn,inidus,optradio,nox,rm,age,dis,rad,tax,ptratio,Bk,lstat)
-    script, div = bokeh_plot(crime,zn,inidus,optradio,nox,rm,age,dis,rad,tax,ptratio,Bk,lstat)
+    #crime=request.POST.get('crime')
+    hi_hour=highchart_hour()
+    hi_day=highchart_day()
+    hi_month=highchart_month()
 
     result_dict={
-        "MEDV_linear":MEDV_linear,
-        "pic_linear":pic_linear,
-        "MEDV_SVR":MEDV_SVR,
-        "pic_SVR":pic_SVR,
-        "the_script":script,
-        "the_div":div
+        "highchart_hour":hi_hour,
+        "highchart_day":hi_day,
+        "highchart_month":hi_month
     }
     return render(
     request,
@@ -100,139 +82,236 @@ def T1LL_result(request):
     context_instance = RequestContext(request, result_dict)       )
     #return HttpResponse(y)
 
-def linear_fitting(crime,zn,inidus,optradio,nox,rm,age,dis,rad,tax,ptratio,Bk,lstat):
-    from django.conf import settings
-    import os
-    import numpy as np
-    from sklearn.externals import joblib
-
-    lr=joblib.load(os.path.join(settings.PROJECT_ROOT,'app','lrmachine.pkl'))
-
-    if not crime:
-        my_variable =[0.02729,0,7.07,0,0.469,7.185,61.1,4.9671,2,242,17.8,39.283,9.14]
-        Y=lr.predict(np.array(my_variable))
-    else:
-        x = np.array([crime,zn,inidus,optradio,nox,rm,age,dis,rad,tax,ptratio,Bk,lstat], dtype=np.float64)
-        Y=lr.predict(x)
-
-    return Y
-
-def linear_plot(crime,zn,inidus,optradio,nox,rm,age,dis,rad,tax,ptratio,Bk,lstat):
-    from django.conf import settings
-    import os, matplotlib.pyplot as plt
-    from sklearn.externals import joblib
-    try:
-        from StringIO import StringIO
-    except ImportError:
-        from io import StringIO
-    from sklearn import datasets
-    from sklearn.cross_validation import cross_val_predict
-    import numpy as np
-
-    lr=joblib.load(os.path.join(settings.PROJECT_ROOT,'app','lrmachine.pkl'))
-    boston = datasets.load_boston()
-    y = boston.target
-    Y=linear_fitting(crime,zn,inidus,optradio,nox,rm,age,dis,rad,tax,ptratio,Bk,lstat)
-
-    try:
-        predicted = cross_val_predict(lr, boston.data, y, cv=10)
-        predict_y=Y
-
-        plt.figure(1)
-        plt.clf()
-        plt.scatter(predicted,y,s=2)
-        plt.plot(predict_y, predict_y, 'ro')
-        plt.plot([y.min(), y.max()], [y.min(), y.max()], 'k--', lw=2)
-        plt.xlabel('Predicted')
-        plt.ylabel('Measured')
-        fig = plt.gcf()
-        fig.set_size_inches(10,6)
-        plt.gca().grid(True)
-
-        rv = StringIO()
-        plt.savefig(rv, format="svg")
-        return rv.getvalue()
-    finally:
-        plt.clf()
-
-def SVR_fitting(crime,zn,inidus,optradio,nox,rm,age,dis,rad,tax,ptratio,Bk,lstat):
-    from django.conf import settings
-    import os
-    import numpy as np
-    from sklearn.externals import joblib
-
-    clf=joblib.load(os.path.join(settings.PROJECT_ROOT,'app','machine_SVR.pkl'))
-
-    if not crime:
-        my_variable =[0.02729,0,7.07,0,0.469,7.185,61.1,4.9671,2,242,17.8,39.283,9.14]
-        Y=clf.predict(np.array(my_variable))
-    else:
-        x = np.array([crime,zn,inidus,optradio,nox,rm,age,dis,rad,tax,ptratio,Bk,lstat], dtype=np.float64)
-        Y=clf.predict(x)
-
-    return Y
-
-def SVR_plot(crime,zn,inidus,optradio,nox,rm,age,dis,rad,tax,ptratio,Bk,lstat):
-    from django.conf import settings
-    import os, matplotlib.pyplot as plt
-    from sklearn.externals import joblib
-    try:
-        from StringIO import StringIO
-    except ImportError:
-        from io import StringIO
-    from sklearn import datasets
-    from sklearn.cross_validation import cross_val_predict
-    import numpy as np
-
-    clf=joblib.load(os.path.join(settings.PROJECT_ROOT,'app','machine_SVR.pkl'))
-    boston = datasets.load_boston()
-    y = boston.target
-    Y=SVR_fitting(crime,zn,inidus,optradio,nox,rm,age,dis,rad,tax,ptratio,Bk,lstat)
-
-    try:
-        predicted = clf.predict(boston.data)
-        predict_y=Y
-
-        plt.figure(1)
-        plt.clf()
-        plt.scatter(predicted,y,s=2)
-        plt.plot(predict_y, predict_y, 'ro')
-        plt.plot([y.min(), y.max()], [y.min(), y.max()], 'k--', lw=2)
-        plt.xlabel('Predicted')
-        plt.ylabel('Measured')
-        fig = plt.gcf()
-        fig.set_size_inches(10,6)
-        plt.gca().grid(True)
-
-        rv = StringIO()
-        plt.savefig(rv, format="svg")
-        return rv.getvalue()
-    finally:
-        plt.clf()
+def highchart_hour():
+    """original_data = ''
+    for index in range(len(x)):
+            if (index < (len(x) - 1)):
+                formattedline = '				[%10.3f , %10.3f ],' % (x[index], y[index])
+            else:
+                formattedline = '				[%10.3f , %10.3f ]' % (x[index], y[index])
+            original_data +=formattedline
 
 
-def bokeh_plot(crime,zn,inidus,optradio,nox,rm,age,dis,rad,tax,ptratio,Bk,lstat):
-    from django.conf import settings
-    import os
-    from sklearn.externals import joblib
-    from sklearn import datasets
-    from bokeh.plotting import figure, show, output_file
-    from bokeh.resources import CDN
-    from bokeh.embed import components
+    fitted_data = ''
+    for index in range(len(fitted_y)):
+            if (index < (len(fitted_y) - 1)):
+                formattedline = '				[%10.3f , %10.3f ],' % (smoothx[index], fitted_y[index])
+            else:
+                formattedline = '				[%10.3f , %10.3f ]' % (smoothx[index], fitted_y[index])
+            fitted_data += formattedline
+"""
+    JS="""
+                <script type='text/javascript'>
+                $(function () {
+    $('#container').highcharts({
+        title: {
+            text: 'Hour'
+        },
+        xAxis: {
+            categories: ['10-20', '20-30', '30-40', '40-50', '50-60']
+        },
+        labels: {
+            items: [{
+                html: 'Total ',
+                style: {
+                    left: '50px',
+                    top: '18px',
+                    color: (Highcharts.theme && Highcharts.theme.textColor) || 'black'
+                }
+            }]
+        },
+        series: [{
+            type: 'column',
+            name: 'Male',
+            color: '#7cb5ec',
+            data: [3, 2, 1, 3, 4]
+        }, {
+            type: 'column',
+            name: 'Female',
+            color: '#f7a35c',
+            data: [2, 3, 5, 7, 6]
+        }, {
+            type: 'pie',
+            name: 'Total: ',
+            data: [{
+                name: 'Male',
+                y: 13,
+                color: Highcharts.getOptions().colors[0] // Jane's color
+            }, {
+                name: 'Female',
+                y: 23,
+                color: Highcharts.getOptions().colors[3] // John's color
+            }],
+            center: [100, 80],
+            size: 100,
+            showInLegend: false,
+            dataLabels: {
+                enabled: false
+            }
+        }]
+    });
+});
 
-    clf=joblib.load(os.path.join(settings.PROJECT_ROOT,'app','machine_SVR.pkl'))
-    boston = datasets.load_boston()
-    y = boston.target
-    Y=SVR_fitting(crime,zn,inidus,optradio,nox,rm,age,dis,rad,tax,ptratio,Bk,lstat)
+        </script>
+        <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 
 
-    predicted = clf.predict(boston.data)
-    predict_y=Y
-    p = figure(title = "Boston dataset")
-    p.xaxis.axis_label = 'Measured'
-    p.yaxis.axis_label = 'Predicted'
 
-    p.scatter(y,predicted)
-    p.asterisk(x=predict_y, y=predict_y, size=20, color="#F0027F")
-    script, div = components(p, CDN)
-    return script, div
+        """
+    return JS
+
+def highchart_day():
+    """original_data = ''
+    for index in range(len(x)):
+            if (index < (len(x) - 1)):
+                formattedline = '				[%10.3f , %10.3f ],' % (x[index], y[index])
+            else:
+                formattedline = '				[%10.3f , %10.3f ]' % (x[index], y[index])
+            original_data +=formattedline
+
+
+    fitted_data = ''
+    for index in range(len(fitted_y)):
+            if (index < (len(fitted_y) - 1)):
+                formattedline = '				[%10.3f , %10.3f ],' % (smoothx[index], fitted_y[index])
+            else:
+                formattedline = '				[%10.3f , %10.3f ]' % (smoothx[index], fitted_y[index])
+            fitted_data += formattedline
+"""
+    JS="""
+                <script type='text/javascript'>
+                $(function () {
+    $('#container1').highcharts({
+        title: {
+            text: 'Day'
+        },
+        xAxis: {
+            categories: ['10-20', '20-30', '30-40', '40-50', '50-60']
+        },
+        labels: {
+            items: [{
+                html: 'Total ',
+                style: {
+                    left: '50px',
+                    top: '18px',
+                    color: (Highcharts.theme && Highcharts.theme.textColor) || 'black'
+                }
+            }]
+        },
+        series: [{
+            type: 'column',
+            name: 'Male',
+            color: '#7cb5ec',
+            data: [3, 2, 10, 3, 14]
+        }, {
+            type: 'column',
+            name: 'Female',
+            color: '#f7a35c',
+            data: [2, 3, 5, 5, 6]
+        }, {
+            type: 'pie',
+            name: 'Total: ',
+            data: [{
+                name: 'Male',
+                y: 13,
+                color: Highcharts.getOptions().colors[0] // Jane's color
+            }, {
+                name: 'Female',
+                y: 23,
+                color: Highcharts.getOptions().colors[3] // John's color
+            }],
+            center: [100, 80],
+            size: 100,
+            showInLegend: false,
+            dataLabels: {
+                enabled: false
+            }
+        }]
+    });
+});
+
+        </script>
+        <div id="container1" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+
+
+
+        """
+    return JS
+
+def highchart_month():
+    """original_data = ''
+    for index in range(len(x)):
+            if (index < (len(x) - 1)):
+                formattedline = '				[%10.3f , %10.3f ],' % (x[index], y[index])
+            else:
+                formattedline = '				[%10.3f , %10.3f ]' % (x[index], y[index])
+            original_data +=formattedline
+
+
+    fitted_data = ''
+    for index in range(len(fitted_y)):
+            if (index < (len(fitted_y) - 1)):
+                formattedline = '				[%10.3f , %10.3f ],' % (smoothx[index], fitted_y[index])
+            else:
+                formattedline = '				[%10.3f , %10.3f ]' % (smoothx[index], fitted_y[index])
+            fitted_data += formattedline
+"""
+    JS="""
+                <script type='text/javascript'>
+                $(function () {
+    $('#container2').highcharts({
+        title: {
+            text: 'Month'
+        },
+        xAxis: {
+            categories: ['10-20', '20-30', '30-40', '40-50', '50-60']
+        },
+        labels: {
+            items: [{
+                html: 'Total ',
+                style: {
+                    left: '50px',
+                    top: '18px',
+                    color: (Highcharts.theme && Highcharts.theme.textColor) || 'black'
+                }
+            }]
+        },
+        series: [{
+            type: 'column',
+            name: 'Male',
+            color: '#7cb5ec',
+            data: [30, 42, 50, 34, 44]
+        }, {
+            type: 'column',
+            name: 'Female',
+            color: '#f7a35c',
+            data: [42, 53, 45, 55, 46]
+        }, {
+            type: 'pie',
+            name: 'Total: ',
+            data: [{
+                name: 'Male',
+                y: 13,
+                color: Highcharts.getOptions().colors[0] // Jane's color
+            }, {
+                name: 'Female',
+                y: 23,
+                color: Highcharts.getOptions().colors[3] // John's color
+            }],
+            center: [100, 80],
+            size: 100,
+            showInLegend: false,
+            dataLabels: {
+                enabled: false
+            }
+        }]
+    });
+});
+
+        </script>
+        <div id="container2" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+
+
+
+        """
+    return JS
