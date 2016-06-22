@@ -10,17 +10,20 @@ from datetime import datetime
 
 def home(request):
     """Renders the home page."""
+    hi_hour=highchart_hour([1,2,3,4,5],[1,2,3,4,10],0)
+    hi_day=highchart_hour([1,2,3,4,5],[1,2,3,4,1],1)
+    hi_month=highchart_hour([1,2,3,4,5],[1,2,3,4,2],2)
     assert isinstance(request, HttpRequest)
+    result_dict={
+        "highchart_hour":hi_hour,
+        "highchart_day":hi_day,
+        "highchart_month":hi_month
+    }
     return render(
         request,
         #'app/index.html',
-        'app/home.html',
-        context_instance = RequestContext(request,
-        {
-            'title':'User Log In',
-            'year':datetime.now().year,
-        })
-    )
+        'app/humanflow.html',
+        context_instance = RequestContext(request, result_dict)       )
 
 def contact(request):
     """Renders the contact page."""
@@ -51,7 +54,7 @@ def about(request):
     )
 
 
-from app.forms import BootstrapCurveFittingForm
+"""from app.forms import BootstrapCurveFittingForm
 def T1LL_input(request):
 
     return render(
@@ -62,10 +65,10 @@ def T1LL_input(request):
             'title':'Fitting Input',
             'form': BootstrapCurveFittingForm
                })
-    )
+    )"""
 
 
-def T1LL_result(request):
+"""def T1LL_result(request):
     #crime=request.POST.get('crime')
     hi_hour=highchart_hour()
     hi_day=highchart_day()
@@ -80,32 +83,17 @@ def T1LL_result(request):
     request,
     'app/boston_result.html',
     context_instance = RequestContext(request, result_dict)       )
-    #return HttpResponse(y)
+    #return HttpResponse(y)"""
 
-def highchart_hour():
-    """original_data = ''
-    for index in range(len(x)):
-            if (index < (len(x) - 1)):
-                formattedline = '				[%10.3f , %10.3f ],' % (x[index], y[index])
-            else:
-                formattedline = '				[%10.3f , %10.3f ]' % (x[index], y[index])
-            original_data +=formattedline
+def highchart_hour(male=[3, 2, 1, 3, 10],female=[5,4,3,2,1],option=0):
+    time_str=['hour','day','month']
 
-
-    fitted_data = ''
-    for index in range(len(fitted_y)):
-            if (index < (len(fitted_y) - 1)):
-                formattedline = '				[%10.3f , %10.3f ],' % (smoothx[index], fitted_y[index])
-            else:
-                formattedline = '				[%10.3f , %10.3f ]' % (smoothx[index], fitted_y[index])
-            fitted_data += formattedline
-"""
     JS="""
                 <script type='text/javascript'>
                 $(function () {
-    $('#container').highcharts({
+    $('#$$container$$').highcharts({
         title: {
-            text: 'Hour'
+            text: '%s'
         },
         xAxis: {
             categories: ['10-20', '20-30', '30-40', '40-50', '50-60']
@@ -124,12 +112,12 @@ def highchart_hour():
             type: 'column',
             name: 'Male',
             color: '#7cb5ec',
-            data: [3, 2, 1, 3, 4]
+            data: %s
         }, {
             type: 'column',
             name: 'Female',
             color: '#f7a35c',
-            data: [2, 3, 5, 7, 6]
+            data: %s
         }, {
             type: 'pie',
             name: 'Total: ',
@@ -153,165 +141,9 @@ def highchart_hour():
 });
 
         </script>
-        <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+        <div id="$$container$$" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 
 
 
-        """
-    return JS
-
-def highchart_day():
-    """original_data = ''
-    for index in range(len(x)):
-            if (index < (len(x) - 1)):
-                formattedline = '				[%10.3f , %10.3f ],' % (x[index], y[index])
-            else:
-                formattedline = '				[%10.3f , %10.3f ]' % (x[index], y[index])
-            original_data +=formattedline
-
-
-    fitted_data = ''
-    for index in range(len(fitted_y)):
-            if (index < (len(fitted_y) - 1)):
-                formattedline = '				[%10.3f , %10.3f ],' % (smoothx[index], fitted_y[index])
-            else:
-                formattedline = '				[%10.3f , %10.3f ]' % (smoothx[index], fitted_y[index])
-            fitted_data += formattedline
-"""
-    JS="""
-                <script type='text/javascript'>
-                $(function () {
-    $('#container1').highcharts({
-        title: {
-            text: 'Day'
-        },
-        xAxis: {
-            categories: ['10-20', '20-30', '30-40', '40-50', '50-60']
-        },
-        labels: {
-            items: [{
-                html: 'Total ',
-                style: {
-                    left: '50px',
-                    top: '18px',
-                    color: (Highcharts.theme && Highcharts.theme.textColor) || 'black'
-                }
-            }]
-        },
-        series: [{
-            type: 'column',
-            name: 'Male',
-            color: '#7cb5ec',
-            data: [3, 2, 10, 3, 14]
-        }, {
-            type: 'column',
-            name: 'Female',
-            color: '#f7a35c',
-            data: [2, 3, 5, 5, 6]
-        }, {
-            type: 'pie',
-            name: 'Total: ',
-            data: [{
-                name: 'Male',
-                y: 13,
-                color: Highcharts.getOptions().colors[0] // Jane's color
-            }, {
-                name: 'Female',
-                y: 23,
-                color: Highcharts.getOptions().colors[3] // John's color
-            }],
-            center: [100, 80],
-            size: 100,
-            showInLegend: false,
-            dataLabels: {
-                enabled: false
-            }
-        }]
-    });
-});
-
-        </script>
-        <div id="container1" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-
-
-
-        """
-    return JS
-
-def highchart_month():
-    """original_data = ''
-    for index in range(len(x)):
-            if (index < (len(x) - 1)):
-                formattedline = '				[%10.3f , %10.3f ],' % (x[index], y[index])
-            else:
-                formattedline = '				[%10.3f , %10.3f ]' % (x[index], y[index])
-            original_data +=formattedline
-
-
-    fitted_data = ''
-    for index in range(len(fitted_y)):
-            if (index < (len(fitted_y) - 1)):
-                formattedline = '				[%10.3f , %10.3f ],' % (smoothx[index], fitted_y[index])
-            else:
-                formattedline = '				[%10.3f , %10.3f ]' % (smoothx[index], fitted_y[index])
-            fitted_data += formattedline
-"""
-    JS="""
-                <script type='text/javascript'>
-                $(function () {
-    $('#container2').highcharts({
-        title: {
-            text: 'Month'
-        },
-        xAxis: {
-            categories: ['10-20', '20-30', '30-40', '40-50', '50-60']
-        },
-        labels: {
-            items: [{
-                html: 'Total ',
-                style: {
-                    left: '50px',
-                    top: '18px',
-                    color: (Highcharts.theme && Highcharts.theme.textColor) || 'black'
-                }
-            }]
-        },
-        series: [{
-            type: 'column',
-            name: 'Male',
-            color: '#7cb5ec',
-            data: [30, 42, 50, 34, 44]
-        }, {
-            type: 'column',
-            name: 'Female',
-            color: '#f7a35c',
-            data: [42, 53, 45, 55, 46]
-        }, {
-            type: 'pie',
-            name: 'Total: ',
-            data: [{
-                name: 'Male',
-                y: 13,
-                color: Highcharts.getOptions().colors[0] // Jane's color
-            }, {
-                name: 'Female',
-                y: 23,
-                color: Highcharts.getOptions().colors[3] // John's color
-            }],
-            center: [100, 80],
-            size: 100,
-            showInLegend: false,
-            dataLabels: {
-                enabled: false
-            }
-        }]
-    });
-});
-
-        </script>
-        <div id="container2" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-
-
-
-        """
-    return JS
+        """ % (time_str[option],male,female)
+    return JS.replace('$$container$$','container'+str(option))

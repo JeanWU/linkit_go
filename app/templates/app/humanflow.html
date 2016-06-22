@@ -2,15 +2,20 @@
 
 {% block content %}
 
-<h2>{{ title }}.</h2><br />
+<div class="bs-callout bs-callout-primary"><h4>statistical data by hour</h4>{{ highchart_hour | safe}} </div>
+
+<div class="bs-callout bs-callout-primary"><h4>statistical data by day</h4>{{ highchart_day | safe}} </div>
+
+<div class="bs-callout bs-callout-primary"><h4>statistical data by month</h4>{{ highchart_month | safe}} </div>
 
 
-<!--<p><h4>This is a website providing you the prediction of your property value.</h4></p>-->
+<div class="bs-callout bs-callout-info">
+{{ HTML_text2 | safe}}
+<H4>Provided by Shan-Jean Wu</H4>
+    </div>
 
-<p><h4>Using scikit-learn SVR to analysis boston house-prices dataset.</h4></p><br />
 
 
-<p><ins>About Desginer</ins></p>
-<p>An EE student who is interested in machine learning.</p>
-<p> </p>
+
+
 {% endblock %}
