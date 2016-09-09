@@ -19,6 +19,11 @@ def home(request):
         "highchart_day":hi_day,
         "highchart_month":hi_month
     }
+
+    from .models import PI_info
+    info = PI_info(age=10,gener=1,gener2=1)
+
+    info.save()
     return render(
         request,
         #'app/index.html',
