@@ -21,7 +21,7 @@ def home(request):
     }
 
     from .models import PI_info
-    info = PI_info(age=10,gener=1,gener2=1)
+    info = PI_info(age=20,gender=1)
 
     info.save()
     return render(
@@ -43,6 +43,21 @@ def contact(request):
             'year':datetime.now().year,
         })
     )
+
+def linkit_go(request):
+    """Renders the linkit_go page."""
+    assert isinstance(request, HttpRequest)
+    return render(
+        request,
+        'app/linkit_go.html',
+        context_instance = RequestContext(request,
+        {
+            'title':'Contact',
+            #'message':'Your contact page.',
+            'year':datetime.now().year,
+        })
+    )
+
 
 def about(request):
     """Renders the about page."""
