@@ -8,9 +8,39 @@ from django.http import HttpResponse
 from django.template import RequestContext
 from datetime import datetime
 
+def dictfetchall(cursor):
+    "Return all rows from a cursor as a dict"
+    columns = [col[0] for col in cursor.description]
+    return [dict(zip(columns, row))
+        for row in cursor.fetchall()]
+
 def home(request):
+    from django.db.models import Count
+    from django.db import connection
+    """retrun restaurant list
+    :request: client request
+    :returns: restaurant list webpage
+    """
+    cursor = connection.cursor()
+    array1=[0,0,0,0,0]
+    sql_str2 = "select  count(*) as sum1 from app_pi_info where gender = 0 and age between 0 and 10"
+    cursor.execute(sql_str2) #for superuser
+    summary = dictfetchall(cursor)
+    array1[0]= summary[0]['sum1']
+
+    sql_str2 = "select  count(*) as sum1 from app_pi_info where gender = 0 and age between 10 and 20"
+    cursor.execute(sql_str2) #for superuser
+    summary = dictfetchall(cursor)
+    array1[1]= summary[0]['sum1']
+
+    sql_str2 = "select  count(*) as sum1 from app_pi_info where gender = 0 and age between 20 and 30"
+    cursor.execute(sql_str2) #for superuser
+    summary = dictfetchall(cursor)
+    array1[2]= summary[0]['sum1']
+
+
     """Renders the home page."""
-    hi_hour=highchart_hour([1,2,3,4,5],[1,2,3,4,10],0)
+    hi_hour=highchart_hour(array1,[1,2,3,4,10],0)
     hi_day=highchart_hour([1,2,3,4,5],[1,2,3,4,1],1)
     hi_month=highchart_hour([1,2,3,4,5],[1,2,3,4,2],2)
     assert isinstance(request, HttpRequest)
