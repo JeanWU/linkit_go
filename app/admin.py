@@ -1,9 +1,9 @@
 from django.contrib import admin
 
-from app.models import PI_info
+from app.models import info_7688
 
 
 
 
 
-admin.site.register(PI_info)
+admin.site.register(info_7688)

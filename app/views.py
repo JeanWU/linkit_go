@@ -22,27 +22,39 @@ def home(request):
     :returns: restaurant list webpage
     """
     cursor = connection.cursor()
-    array1=[0,0,0,0,0]
-    sql_str2 = "select  count(*) as sum1 from app_pi_info where gender = 0 and age between 0 and 10"
-    cursor.execute(sql_str2) #for superuser
-    summary = dictfetchall(cursor)
-    array1[0]= summary[0]['sum1']
+    array0=[0,0,0,0,0]  #for male within hour
+    array1=[0,0,0,0,0]  #for female within hour
+    array2=[0,0,0,0,0]  #for male within day
+    array3=[0,0,0,0,0]  #for female within day
+    array4=[0,0,0,0,0]  #for male within month
+    array5=[0,0,0,0,0]  #for female within month
 
-    sql_str2 = "select  count(*) as sum1 from app_pi_info where gender = 0 and age between 10 and 20"
-    cursor.execute(sql_str2) #for superuser
-    summary = dictfetchall(cursor)
-    array1[1]= summary[0]['sum1']
+    strlist=['10','20','30','40','50','60']
+    for i in range (0,5,1):
+        sql_str2 = "select count(case when age >= %s and age < %s then 1 else null end) as sum1 from app_info_7688 where time1 >= time('now','-1 hour') group by gender" %(strlist[i],strlist[i+1])
+        cursor.execute(sql_str2) #for superuser
+        summary = dictfetchall(cursor)
+        array0[i]= summary[0]['sum1']
+        array1[i]= summary[1]['sum1']
 
-    sql_str2 = "select  count(*) as sum1 from app_pi_info where gender = 0 and age between 20 and 30"
-    cursor.execute(sql_str2) #for superuser
-    summary = dictfetchall(cursor)
-    array1[2]= summary[0]['sum1']
+    for i in range (0,5,1):
+        sql_str2 = "select count(case when age >= %s and age < %s then 1 else null end) as sum1 from app_info_7688 where time1 >= datetime('now','-1 day') group by gender" %(strlist[i],strlist[i+1])
+        cursor.execute(sql_str2) #for superuser
+        summary = dictfetchall(cursor)
+        array2[i]= summary[0]['sum1']
+        array3[i]= summary[1]['sum1']
 
+    for i in range (0,5,1):
+        sql_str2 = "select count(case when age >= %s and age < %s then 1 else null end) as sum1 from app_info_7688 where time1 >= datetime('now','-1 month') group by gender" %(strlist[i],strlist[i+1])
+        cursor.execute(sql_str2) #for superuser
+        summary = dictfetchall(cursor)
+        array4[i]= summary[0]['sum1']
+        array5[i]= summary[1]['sum1']
 
     """Renders the home page."""
-    hi_hour=highchart_hour(array1,[1,2,3,4,10],0)
-    hi_day=highchart_hour([1,2,3,4,5],[1,2,3,4,1],1)
-    hi_month=highchart_hour([1,2,3,4,5],[1,2,3,4,2],2)
+    hi_hour=highchart_hour(array0,array1,0)
+    hi_day=highchart_hour(array2,array3,1)
+    hi_month=highchart_hour(array4,array5,2)
     assert isinstance(request, HttpRequest)
     result_dict={
         "highchart_hour":hi_hour,
@@ -50,10 +62,12 @@ def home(request):
         "highchart_month":hi_month
     }
 
-    from .models import PI_info
-    info = PI_info(age=20,gender=1)
+    '''add info into info_7688 table
+    from .models import info_7688
+    for i in range(10,60,5):
+        info = info_7688(age='%d'%(i),gender=0,user_id=1)
 
-    info.save()
+        info.save()'''
     return render(
         request,
         #'app/index.html',
@@ -137,6 +151,12 @@ def T1LL_input(request):
 
 def highchart_hour(male=[3, 2, 1, 3, 10],female=[5,4,3,2,1],option=0):
     time_str=['hour','day','month']
+    male_total=0
+    for i in range(0,5,1):
+        male_total+=male[i]
+    female_total=0
+    for i in range(0,5,1):
+        female_total+=female[i]
 
     JS="""
                 <script type='text/javascript'>
@@ -173,11 +193,11 @@ def highchart_hour(male=[3, 2, 1, 3, 10],female=[5,4,3,2,1],option=0):
             name: 'Total: ',
             data: [{
                 name: 'Male',
-                y: 13,
+                y: %s,
                 color: Highcharts.getOptions().colors[0] // Jane's color
             }, {
                 name: 'Female',
-                y: 23,
+                y: %s,
                 color: Highcharts.getOptions().colors[3] // John's color
             }],
             center: [100, 80],
@@ -195,5 +215,5 @@ def highchart_hour(male=[3, 2, 1, 3, 10],female=[5,4,3,2,1],option=0):
 
 
 
-        """ % (time_str[option],male,female)
+        """ % (time_str[option],male,female,str(male_total),str(female_total))
     return JS.replace('$$container$$','container'+str(option))
