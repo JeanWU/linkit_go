@@ -7,6 +7,7 @@ from django.http import HttpRequest
 from django.http import HttpResponse
 from django.template import RequestContext
 from datetime import datetime
+from django.contrib.auth.decorators import login_required
 
 def dictfetchall(cursor):
     "Return all rows from a cursor as a dict"
@@ -15,6 +16,56 @@ def dictfetchall(cursor):
         for row in cursor.fetchall()]
 
 def home(request):
+    """Renders the home page."""
+    assert isinstance(request, HttpRequest)
+    return render(
+        request,
+        'app/index.html',
+        #'app/humanflow.html',
+        context_instance = RequestContext(request)       )
+
+def contact(request):
+    """Renders the contact page."""
+    assert isinstance(request, HttpRequest)
+    return render(
+        request,
+        'app/contact.html',
+        context_instance = RequestContext(request,
+        {
+            'title':'Contact',
+            #'message':'Your contact page.',
+            'year':datetime.now().year,
+        })
+    )
+
+def showyoutube(request):
+    """Renders the home page."""
+    assert isinstance(request, HttpRequest)
+
+    return render(
+        request,
+        'app/youtube.html',
+        {
+            'title':'Youtube',
+            'year':datetime.now().year,
+        })
+
+def showppt(request):
+    """Renders the home page."""
+    assert isinstance(request, HttpRequest)
+
+    return render(
+        request,
+        'app/ppt.html',
+        {
+            'title':'Presentation',
+            'year':datetime.now().year,
+        })
+
+from django.contrib.auth.decorators import login_required
+@login_required
+def humanflow(request):
+    """Renders the linkit_go page."""
     from django.db.models import Count
     from django.db import connection
     """retrun restaurant list
@@ -31,14 +82,14 @@ def home(request):
 
     strlist=['10','20','30','40','50','60']
     for i in range (0,5,1):
-        sql_str2 = "select count(case when age >= %s and age < %s and  time1 >= time('now','-1 hour') and time1< time('now') then 1 else null end) as sum1 from app_info_7688 group by gender" %(strlist[i],strlist[i+1])
+        sql_str2 = "select count(case when age >= %s and age < %s and  time1 >= time('now','-1 hour') then 1 else null end) as sum1 from app_info_7688 group by gender" %(strlist[i],strlist[i+1])
         cursor.execute(sql_str2) #for superuser
         summary = dictfetchall(cursor)
         array0[i]= summary[0]['sum1']
         array1[i]= summary[1]['sum1']
 
     for i in range (0,5,1):
-        sql_str2 = "select count(case when age >= %s and age < %s and  time1 >= datetime('now','-1 day') and time1< time('now') then 1 else null end) as sum1 from app_info_7688 group by gender" %(strlist[i],strlist[i+1])
+        sql_str2 = "select count(case when age >= %s and age < %s and  time1 >= datetime('now','-1 day') then 1 else null end) as sum1 from app_info_7688 group by gender" %(strlist[i],strlist[i+1])
         cursor.execute(sql_str2) #for superuser
         summary = dictfetchall(cursor)
         array2[i]= summary[0]['sum1']
@@ -51,7 +102,6 @@ def home(request):
         array4[i]= summary[0]['sum1']
         array5[i]= summary[1]['sum1']
 
-    """Renders the home page."""
     hi_hour=highchart_hour(array0,array1,0)
     hi_day=highchart_hour(array2,array3,1)
     hi_month=highchart_hour(array4,array5,2)
@@ -73,34 +123,8 @@ def home(request):
         #'app/index.html',
         'app/humanflow.html',
         context_instance = RequestContext(request, result_dict)       )
+    #assert isinstance(request, HttpRequest)
 
-def contact(request):
-    """Renders the contact page."""
-    assert isinstance(request, HttpRequest)
-    return render(
-        request,
-        'app/contact.html',
-        context_instance = RequestContext(request,
-        {
-            'title':'Contact',
-            #'message':'Your contact page.',
-            'year':datetime.now().year,
-        })
-    )
-
-def linkit_go(request):
-    """Renders the linkit_go page."""
-    assert isinstance(request, HttpRequest)
-    return render(
-        request,
-        'app/linkit_go.html',
-        context_instance = RequestContext(request,
-        {
-            'title':'Contact',
-            #'message':'Your contact page.',
-            'year':datetime.now().year,
-        })
-    )
 
 
 def about(request):
