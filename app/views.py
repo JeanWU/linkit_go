@@ -82,21 +82,21 @@ def humanflow(request):
 
     strlist=['10','20','30','40','50','60']
     for i in range (0,5,1):
-        sql_str2 = "select count(case when age >= %s and age < %s and  time1 >= time('now','-1 hour') then 1 else null end) as sum1 from app_info_7688 group by gender" %(strlist[i],strlist[i+1])
+        sql_str2 = "select count(case when time1 > datetime('now', '-1 hour') and age >= %s and age < %s then 1 else null end) as sum1 from app_info_7688 group by gender" %(strlist[i],strlist[i+1])
         cursor.execute(sql_str2) #for superuser
         summary = dictfetchall(cursor)
         array0[i]= summary[0]['sum1']
         array1[i]= summary[1]['sum1']
 
     for i in range (0,5,1):
-        sql_str2 = "select count(case when age >= %s and age < %s and  time1 >= datetime('now','-1 day') then 1 else null end) as sum1 from app_info_7688 group by gender" %(strlist[i],strlist[i+1])
+        sql_str2 = "select count(case when time1 > datetime('now', '-1 day') and age >= %s and age < %s then 1 else null end) as sum1 from app_info_7688 group by gender" %(strlist[i],strlist[i+1])
         cursor.execute(sql_str2) #for superuser
         summary = dictfetchall(cursor)
         array2[i]= summary[0]['sum1']
         array3[i]= summary[1]['sum1']
 
     for i in range (0,5,1):
-        sql_str2 = "select count(case when age >= %s and age < %s then 1 else null end) as sum1 from app_info_7688 where time1 >= datetime('now','-1 month') group by gender" %(strlist[i],strlist[i+1])
+        sql_str2 = "select count(case when time1 > datetime('now', '-30 days') and age >= %s and age < %s then 1 else null end) as sum1 from app_info_7688 where time1 >= datetime('now','-1 month') group by gender" %(strlist[i],strlist[i+1])
         cursor.execute(sql_str2) #for superuser
         summary = dictfetchall(cursor)
         array4[i]= summary[0]['sum1']
@@ -115,7 +115,7 @@ def humanflow(request):
     #add info into info_7688 table
     '''from .models import info_7688
     for i in range(10,60,5):
-        info = info_7688(age='%d'%(i),gender=0,user_id=1)
+        info = info_7688(age='%d'%(i),gender=1,user_id=1)
 
         info.save()'''
     return render(

@@ -12,8 +12,8 @@ class info_7688(models.Model):
     from django.contrib.auth.models import User
     user = models.ForeignKey(User)  #資料屬於哪個使用者
 
-    def __str__(self):
-        return self.name
+    #def __str__(self):
+    #    return self.name
 
 '''for upload picture
 class Document(models.Model):
