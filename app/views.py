@@ -20,8 +20,7 @@ def home(request):
     assert isinstance(request, HttpRequest)
     return render(
         request,
-        'app/index.html',
-        #'app/humanflow.html',
+        'app/home.html',
         context_instance = RequestContext(request)       )
 
 def contact(request):
@@ -61,6 +60,35 @@ def showppt(request):
             'title':'Presentation',
             'year':datetime.now().year,
         })
+
+
+def dynamic_information(request):
+    """Renders the dynamic_information page."""
+    from django.db.models import Count
+    from django.db import connection
+
+    cursor = connection.cursor()
+    sql_str3 = "select count(*) as sum1 from app_info_7688 where time1=datetime('now')"
+    cursor.execute(sql_str3) #for superuser
+    count_list = dictfetchall(cursor)
+    count_now=count_list[0]['sum1']
+    print("count_now=%d" %count_now)  #make sure that count_now is int and =0
+
+    hi_try=highchart_try()
+
+    assert isinstance(request, HttpRequest)
+    result_dict={
+        "highchart_try":hi_try
+    }
+
+    return render(
+        request,
+        'app/dynamic.html',
+        context_instance = RequestContext(request, result_dict)       )
+
+
+
+
 
 from django.contrib.auth.decorators import login_required
 @login_required
@@ -102,14 +130,23 @@ def humanflow(request):
         array4[i]= summary[0]['sum1']
         array5[i]= summary[1]['sum1']
 
+    sql_str3 = "select count(*) as sum1 from app_info_7688 where time1=datetime('now')"
+    cursor.execute(sql_str3) #for superuser
+    count_list = dictfetchall(cursor)
+    count_now=count_list[0]['sum1']
+
+
     hi_hour=highchart_hour(array0,array1,0)
     hi_day=highchart_hour(array2,array3,1)
     hi_month=highchart_hour(array4,array5,2)
+    hi_try=highchart_try()
+
     assert isinstance(request, HttpRequest)
     result_dict={
         "highchart_hour":hi_hour,
         "highchart_day":hi_day,
-        "highchart_month":hi_month
+        "highchart_month":hi_month,
+        "highchart_try":hi_try
     }
 
     #add info into info_7688 table
@@ -241,3 +278,93 @@ def highchart_hour(male=[3, 2, 1, 3, 10],female=[5,4,3,2,1],option=0):
 
         """ % (time_str[option],male,female,str(male_total),str(female_total))
     return JS.replace('$$container$$','container'+str(option))
+
+
+
+def highchart_try():
+
+
+    JS="""
+                <script type='text/javascript'>
+    $(function () {
+    $(document).ready(function () {
+        Highcharts.setOptions({
+            global: {
+                useUTC: false
+            }
+        });
+
+        $('#container').highcharts({
+            chart: {
+                type: 'spline',
+                animation: Highcharts.svg, // don't animate in old IE
+                marginRight: 10,
+                events: {
+                    load: function () {
+
+                        // set up the updating of the chart each second
+                        var series = this.series[0];
+                        setInterval(function () {
+                            var x = (new Date()).getTime(), // current time
+                                y = 0;
+                            series.addPoint([x, y], true, true);
+                        }, 1000);
+                    }
+                }
+            },
+            title: {
+                text: 'Live random data'
+            },
+            xAxis: {
+                type: 'datetime',
+                tickPixelInterval: 150
+            },
+            yAxis: {
+                title: {
+                    text: 'Value'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            tooltip: {
+                formatter: function () {
+                    return '<b>' + this.series.name + '</b><br/>' +
+                        Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+                        Highcharts.numberFormat(this.y, 2);
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            exporting: {
+                enabled: false
+            },
+            series: [{
+                name: 'Random data',
+                data: (function () {
+                    // generate an array of random data
+                    var data = [],
+                        time = (new Date()).getTime(),
+                        i;
+
+                    for (i = -19; i <= 0; i += 1) {
+                        data.push({
+                            x: time + i * 1000,
+                            y: 0
+                        });
+                    }
+                    return data;
+                }())
+            }]
+        });
+    });
+});
+
+        </script>
+        <div id="$$container$$" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+
+        """
+    return JS.replace('$$container$$','container')

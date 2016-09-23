@@ -2,6 +2,8 @@ from datetime import datetime
 from django.conf.urls import patterns, url
 from app.forms import BootstrapAuthenticationForm
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
+from django.conf.urls.static import static
 
 # Uncomment the next lines to enable the admin:
 from django.conf.urls import include
@@ -16,6 +18,7 @@ urlpatterns = patterns('',
     url(r'^about', 'app.views.about', name='about'),
     url(r'^showyoutube/$', 'app.views.showyoutube', name='showyoutube'),
     url(r'^showppt/$', 'app.views.showppt', name='showppt'),
+    url(r'^dynamic_information/$', 'app.views.dynamic_information', name='dynamic_information'),
     url(r'^login/$',
         'django.contrib.auth.views.login',
         {
@@ -42,4 +45,6 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
-)
+    url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': 'imgage'}),
+    url(r'static^/(?P<path>.*)$', 'django.views.static.serve', {'document_root': 'js'}),
+) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -2,57 +2,32 @@
 
 {% block content %}
 
-<h2>{{ title }}</h2>
-<div class="row">
-    <div class="col-md-8">
-        <section id="loginForm">
-            <form action="/T1LL_result/" method="post" class="form-horizontal">
-                {% csrf_token %}
-                <h4>Log in to get flow statistics</h4>
-                <hr />
-
-                <div class="form-group">
-                  <label class="control-label col-sm-2" for="crime">User name:</label>
-                  <div class="col-sm-10">
-                  <input name="crime" class="form-control" id="crime" placeholder="enter your user name">
-                  </div>
-                  </div>
-                <div class="form-group">
-                  <label class="control-label col-sm-2" for="zn">Password:</label>
-                  <div class="col-sm-10">
-                  <input name="zn" class="form-control" id="zn" placeholder="enter your password">
-                  </div>
-                  </div>
-
-
-                <div class="form-group">
-                    <div class="col-md-offset-2 col-md-10">
-                        <input type="hidden" name="next" value="/" />
-                        <input type="submit" value="login" class="btn btn-default" />
-                    </div>
-                </div>
-                {% if form.errors %}
-                <p class="validation-summary-errors">Please enter a correct user name and password.</p>
-                {% endif %}
-            </form>
-        </section>
-    </div>
-    <div class="col-md-4">
-        <section id="socialLoginForm"></section>
-    </div>
-
-
-
+<div class="jumbotron">
+    <h1>Linkit Go</h1>
+    <p class="lead">MR Fitting is a web framework for curve fitting for time series obtained in MR experiments.</p>
+    <p><a href="#" class="btn btn-primary btn-large">Learn more &raquo;</a></p>
 </div>
 
-<p>
-Provided by Shan-Jean WU
-{% endblock %}
-
-
-{% block scripts %}
-
-    {% load staticfiles %}
-<script src="{% static 'app/scripts/jquery.validate.min.js' %}"></script>
+<div class="row">
+    <div class="col-md-4">
+        <h2>Getting started</h2>
+        <p>
+            Django gives you a powerful, patterns-based way to build dynamic websites that
+            enables a clean separation of concerns and gives you full control over markup
+            for enjoyable, agile development.
+        </p>
+        <p><a class="btn btn-default" href="#">Learn more &raquo;</a></p>
+    </div>
+    <div class="col-md-4">
+        <h2>Get more libraries</h2>
+        <p>The Python Package Index is a repository of software for the Python programming language.</p>
+        <p><a class="btn btn-default" href="#">Learn more &raquo;</a></p>
+    </div>
+    <div class="col-md-4">
+        <h2>Microsoft Azure</h2>
+        <p>You can easily publish to Microsoft Azure using Python Tools for Visual Studio. Find out how you can host your application using a free trial today.</p>
+        <p><a class="btn btn-default" href="#">Learn more &raquo;</a></p>
+    </div>
+</div>
 
 {% endblock %}
