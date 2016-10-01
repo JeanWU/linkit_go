@@ -20,7 +20,8 @@ def home(request):
     assert isinstance(request, HttpRequest)
     return render(
         request,
-        'app/home.html',
+        #'app/home.html',
+        'app/try_0930.html',
         context_instance = RequestContext(request)       )
 
 def contact(request):
@@ -74,7 +75,7 @@ def dynamic_information(request):
     count_now=count_list[0]['sum1']
     print("count_now=%d" %count_now)  #make sure that count_now is int and =0
 
-    hi_try=highchart_try()
+    hi_try=highchart_try(count_now)
 
     assert isinstance(request, HttpRequest)
     result_dict={
@@ -139,7 +140,7 @@ def humanflow(request):
     hi_hour=highchart_hour(array0,array1,0)
     hi_day=highchart_hour(array2,array3,1)
     hi_month=highchart_hour(array4,array5,2)
-    hi_try=highchart_try()
+    hi_try=highchart_try(count_now)
 
     assert isinstance(request, HttpRequest)
     result_dict={
@@ -281,7 +282,7 @@ def highchart_hour(male=[3, 2, 1, 3, 10],female=[5,4,3,2,1],option=0):
 
 
 
-def highchart_try():
+def highchart_try(count_now):
 
 
     JS="""
@@ -306,14 +307,14 @@ def highchart_try():
                         var series = this.series[0];
                         setInterval(function () {
                             var x = (new Date()).getTime(), // current time
-                                y = 0;
+                                y = %s
                             series.addPoint([x, y], true, true);
                         }, 1000);
                     }
                 }
             },
             title: {
-                text: 'Live random data'
+                text: 'Live data'
             },
             xAxis: {
                 type: 'datetime',
@@ -332,7 +333,7 @@ def highchart_try():
             tooltip: {
                 formatter: function () {
                     return '<b>' + this.series.name + '</b><br/>' +
-                        Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+                        Highcharts.dateFormat('%%Y-%%m-%%d %%H:%%M:%%S', this.x) + '<br/>' +
                         Highcharts.numberFormat(this.y, 2);
                 }
             },
@@ -353,7 +354,7 @@ def highchart_try():
                     for (i = -19; i <= 0; i += 1) {
                         data.push({
                             x: time + i * 1000,
-                            y: 0
+                            y: %s
                         });
                     }
                     return data;
@@ -366,5 +367,6 @@ def highchart_try():
         </script>
         <div id="$$container$$" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 
-        """
+        """ %(str(count_now),str(count_now))
+
     return JS.replace('$$container$$','container')
