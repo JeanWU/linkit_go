@@ -22,7 +22,8 @@ def home(request):
         request,
         #'app/home.html',
         'app/try_0930.html',
-        context_instance = RequestContext(request)       )
+        context_instance = RequestContext(request,{
+            'title':'LinkitGo')       )
 
 def contact(request):
     """Renders the contact page."""
@@ -370,56 +371,3 @@ def highchart_try(count_now):
         """ %(str(count_now),str(count_now))
 
     return JS.replace('$$container$$','container')
-
-def upload(request):
-    """upload from 7688"""
-    #http://127.0.0.1:8000/upload/?user=jean&gender=1&age=10.2
-    from django.contrib.auth.models import User
-    userkey =User.objects.get(username=request.GET['user'])
-    from .models import info_7688
-    info = info_7688.objects.create(user=userkey,age=request.GET['age'],gender=request.GET['gender'])
-    info.save()
-    return HttpResponse('1')
-
-def dynamic_test(request):
-    """Renders the dynamic_test page."""
-    assert isinstance(request, HttpRequest)
-    from .models import info_7688
-    import time
-    ts = int(time.time())
-    try:
-        info = info_7688.objects.get(user=request.user)
-        tempname=info_7688.name
-
-    except:
-        tempname='test'
-    return render(
-        request,
-        'app/dynamic_test.html',
-        {
-            'title':'Home Page',
-            'year':datetime.now().year,
-            'name':tempname,
-            'timestamp':ts,
-        })
-
-
-
-def getall(request):
-    from django.http import JsonResponse
-    '''from django.db.models import Count
-    from django.db import connection
-
-    cursor = connection.cursor()
-    sql_str3 = "select count(*) as sum1 from app_info_7688 where time1=datetime('now')"
-    cursor.execute(sql_str3) #for superuser
-    count_list = dictfetchall(cursor)
-    count_now=count_list[0]['sum1']
-    print("count_now=%d" %count_now) '''
-
-    from .models import info_7688
-    info = info_7688.objects.get(user=request.user)
-    #print "%f" % info.temperature
-    #return HttpResponse(info.temperature)
-
-    return JsonResponse({'age':info.age,'gender':info.gender})

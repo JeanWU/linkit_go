@@ -3,11 +3,10 @@ Definition of models.
 """
 
 from django.db import models
-from decimal import Decimal
 
 # Create your models here.
 class info_7688(models.Model):
-    age = models.DecimalField(max_digits=3,decimal_places=1,default=Decimal('0.0'))
+    age = models.DecimalField(max_digits=3,decimal_places=0,default=0)
     time1 = models.DateTimeField(auto_now_add=True)
     gender = models.BooleanField(default=False)
     from django.contrib.auth.models import User

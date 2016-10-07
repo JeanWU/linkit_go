@@ -14,14 +14,11 @@ urlpatterns = patterns('',
     # Examples:
     url(r'^$', 'app.views.home', name='home'),
     url(r'^contact$', 'app.views.contact', name='contact'),
-    url(r'^upload/$', 'app.views.upload', name='upload'),
-    url(r'^getall/$', 'app.views.getall',  name='getall'),
     url(r'^humanflow/$','app.views.humanflow', name='humanflow'),
     url(r'^about', 'app.views.about', name='about'),
     url(r'^showyoutube/$', 'app.views.showyoutube', name='showyoutube'),
     url(r'^showppt/$', 'app.views.showppt', name='showppt'),
     url(r'^dynamic_information/$', 'app.views.dynamic_information', name='dynamic_information'),
-    url(r'^dynamic_test/$', 'app.views.dynamic_test', name='dynamic_test'),
     url(r'^login/$',
         'django.contrib.auth.views.login',
         {
@@ -48,5 +45,5 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': 'imgage'}),
-) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+    ) 

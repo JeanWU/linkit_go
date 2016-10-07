@@ -1,6 +1,8 @@
 {% extends "app/layout.html" %}
 
 {% block content %}
+{% load staticfiles %}
+
 
 <h2>{{ title }}.</h2>
 <h3>{{ message }}</h3>
@@ -15,7 +17,7 @@
 
 <div class="caption" >
   <p>
-    <img src=/static/image/jean.JPG width="120" height="120" class="img-rounded" align="left">
+    <img src={% static 'image/jean.jpg' %}  width="120" height="120" class="img-rounded" align="left">
     <h3> 	&emsp; School: NTUST</h3>
   </p>
   <p> <h3>  &emsp; Name: Shan Jean WU</h3></p>
@@ -24,7 +26,7 @@
 
 <div class="caption" >
   <p>
-    <img src=/static/image/Yi_Teng.JPG width="120" height="120" class="img-rounded" align="left">
+    <img src={% static 'image/Yi_Teng.jpg' %}  width="120" height="120" class="img-rounded" align="left">
     <h3> 	&emsp; School: NTUST</h3>
   </p>
   <p> <h3>  &emsp; Name: Yi Teng Chen</h3></p>
@@ -33,7 +35,7 @@
 
 <div class="caption" >
   <p>
-    <img src=/static/image/Bo_Shu.JPG width="120" height="120" class="img-rounded" align="left">
+    <img src={% static 'image/Bo_Shu.jpg' %} width="120" height="120" class="img-rounded" align="left">
     <h3> 	&emsp; School: NTUST</h3>
   </p>
   <p> <h3>  &emsp; Name: Bo Shu CHEN</h3></p>
