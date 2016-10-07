@@ -1,11 +1,12 @@
 {% extends "app/layout.html" %}
 
 {% block content %}
+{% load staticfiles %}
 
 
     <h1>Linkit Go</h1>
     <p class="lead">
-      <img src=/static/image/notice.PNG width=100% class="img-rounded">
+      <img src={% static 'image/notice.PNG' %} width=100% class="img-rounded">
     </p>
 
 <title>W3.CSS</title>
@@ -19,10 +20,10 @@
 <h2 class="w3-center">Automatic Slideshow</h2>
 
 <div class="w3-content w3-section" style="max-width:500px">
-  <img class="mySlides" src=/static/image/jean.JPG style="width:100%">
-  <img class="mySlides" src=/static/image/linkitgo.JPG style="width:100%">
-  <img class="mySlides" src=/static/image/Yi_Teng.JPG style="width:100%">
-  <img class="mySlides" src=/static/image/Bo_Shu.JPG style="width:100%">
+  <img class="mySlides" src={% static 'image/jean.jpg' %} style="width:100%">
+  <img class="mySlides" src={% static 'image/linkitgo.jpg' %}  style="width:100%">
+  <img class="mySlides" src={% static 'image/Yi_Teng.jpg' %}  style="width:100%">
+  <img class="mySlides" src={% static 'image/Bo_Shu.jpg' %}  style="width:100%">
 </div>
 
 <script>
