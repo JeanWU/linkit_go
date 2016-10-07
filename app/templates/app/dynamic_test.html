@@ -1,0 +1,264 @@
+{% extends "app/layout.html" %}
+{% block content %}
+{% load staticfiles %}
+<style>
+    .space{ width:28px;height: 70px; }
+    .space1{height: 50px;}
+    .photo-head{text-align:center;font-size:16px;font-family:sans-serif;}
+    .col-md-6{text-align:center;}
+</style>
+
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script src="http://code.highcharts.com/modules/exporting.js"></script>
+<script src="http://cdn.jsdelivr.net/raphael/2.1.2/raphael-min.js"></script>
+<script src="http://cdn.jsdelivr.net/justgage/1.0.1/justgage.min.js"></script>
+
+<script src="{% static 'jquery.nivo.slider.pack.js' %}" type="text/javascript"></script>
+
+
+<div class="container">
+<div class="col-md-6" >
+  <br/>   <br/>
+<br/>
+</div>
+
+<div class="row">
+  <br/>
+    <div class="col-md-3"><div id="g1" style=" height:210px"></div></div>
+    <div class="col-md-3"><div id="g2" style=" height:210px"></div></div>
+</div>
+<hr/><br/>
+
+<div class="row">
+    <div class="col-md-6"><div id="agechart" style="min-width: 500px; height: 200px; margin: 0 auto"></div></div>
+
+    <div class="col-md-6"><div id="genderchart" style="min-width: 500px; height: 200px; margin: 0 auto"></div></div>
+</div>
+<br/><hr/><br/>
+
+</div>
+
+
+<script>
+var g1,g2;
+var reloadms,counter;
+var gtimer;
+var init = 0;
+var counter =0;
+var imagecounter =0;
+reloadms = 2000;
+
+$(document).ready(function(){
+    $("[name='my-checkbox']").bootstrapSwitch();
+    $("[name='my-checkbox2']").bootstrapSwitch();
+    $('input[name="my-checkbox"]').on('switchChange.bootstrapSwitch', function(event, state) {
+      LED_NEW(this.checked);
+    });
+    $('input[name="my-checkbox2"]').on('switchChange.bootstrapSwitch', function(event, state) {
+      MOTOR_NEW(this.checked);
+    });
+    if (init==0)
+    {
+    window.getdata();
+    //window.setTimeout( window.getdata, window.reloadms );
+    window.init=1;
+    window.gtimer = setInterval( window.getdata, window.reloadms );
+    }
+});
+
+function getdata(){
+        window.counter++;
+
+        if (window.counter % 2 ==0)
+        {
+        d = new Date();
+        imagenumber= window.counter % 4; // 0 or 2
+
+        //$("#dynamicImage"+imagenumber).attr("src", "http://redsox.ee.ntust.edu.tw/image/{{ name }}.jpg#" +d.getTime());
+
+        //$("#dynamicImage").slideDown("slow");
+
+        //$("#temp123").text("http://myun.herokuapp.com/image/{{ name }}.jpg#"  +d.getTime());
+      }
+        $.getJSON("{% url 'getall' %}")
+            .done(function( data ) {
+
+           //alert("Data: " + data + "\nStatus: " + status);
+           // $("#tempstr").html(data);
+            //$("#counter").text(counter);
+            window.series1.addPoint([(new Date()).getTime(), parseFloat(data.age)], true, true);
+            window.series2.addPoint([(new Date()).getTime(), parseFloat(data.gender)], true, true);
+            $("[name='my-checkbox']").bootstrapSwitch('state', !!data.LED, true);
+            $("[name='my-checkbox2']").bootstrapSwitch('state', !!data.Motor, true);
+
+            window.g1.refresh(parseFloat(data.age));
+            window.g2.refresh(parseFloat(data.temp));
+              });
+    };
+
+window.onblur =
+        function (ev) {
+            getdata();
+            //reloadms=600000;
+            //reloadms=3000; //改變這個參數可以讓視窗非使用中時，減少更新速率
+            clearInterval(gtimer);
+            gtimer = setInterval( getdata, window.reloadms );
+            //$("#counter2").text("未使用"  + reloadms );
+             };
+
+window.onfocus =
+        function (ev) {
+            getdata();
+            //window.reloadms=3000;
+            clearInterval(gtimer);
+            gtimer = setInterval( getdata, window.reloadms );
+            //$("#counter2").text("使用中" + reloadms);
+        };
+
+var g1 = new JustGage({
+          id: "g1",
+          value: 0,
+          min: 0,
+          max: 100,
+          title: "Age",
+          label: ""
+        });
+
+var g2 = new JustGage({
+          id: "g2",
+          value: 0,
+          min: 0,
+          max: 100,
+          title: "Gender",
+          label: ""
+        });
+
+function chart() {
+        Highcharts.setOptions({
+            global: {
+                useUTC: false
+            }
+        });
+
+        $('#age').highcharts({
+            chart: {
+                type: 'spline',
+                animation: Highcharts.svg, // don't animate in old IE
+                marginRight: 10,
+                events: {
+                }
+            },
+            title: {
+                text: 'Age'
+            },
+            xAxis: {
+                type: 'datetime',
+                tickPixelInterval: 150
+            },
+            yAxis: {
+                title: {
+                    text: 'Value'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            tooltip: {
+                formatter: function () {
+                    return '<b>' + this.series.name + '</b><br/>' +
+                        Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+                        Highcharts.numberFormat(this.y, 2);
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            exporting: {
+                enabled: false
+            },
+            series: [{
+                name: 'Age',
+                id: 'series-1',
+                data: (function () {
+                    // generate an array of zeros
+                    var data = [],
+                        time = (new Date()).getTime(),
+                        i;
+                    for (i = -19; i <= 0; i += 1) {
+                        data.push({
+                            x: time + i * 1000,
+                            y: 0
+                        });
+                    }
+                    return data;
+                }())
+            }] });
+
+        $('#gender').highcharts({
+            chart: {
+                type: 'spline',
+                animation: Highcharts.svg, // don't animate in old IE
+                marginRight: 10,
+                events: {
+                }
+            },
+            title: {
+                text: 'Gender'
+            },
+            xAxis: {
+                type: 'datetime',
+                tickPixelInterval: 150
+            },
+            yAxis: {
+                title: {
+                    text: 'Value'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            tooltip: {
+                formatter: function () {
+                    return '<b>' + this.series.name + '</b><br/>' +
+                        Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+                        Highcharts.numberFormat(this.y, 2);
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            exporting: {
+                enabled: false
+            },
+            series: [{
+                name: 'Gender',
+                id: 'series-2',
+                data: (function () {
+                    // generate an array of zeros
+                    var data = [],
+                        time = (new Date()).getTime(),
+                        i;
+                    for (i = -19; i <= 0; i += 1) {
+                        data.push({
+                            x: time + i * 1000,
+                            y: 0
+                        });
+                    }
+                    return data;
+                }())
+            }] });
+};
+
+chart();
+var hchart1 = $('#age').highcharts();
+series1 = hchart1.get('series-1');
+var hchart2 = $('#gender').highcharts();
+series2 = hchart2.get('series-2');
+
+</script>
+
+{% endblock %}
