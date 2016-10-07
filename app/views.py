@@ -22,7 +22,8 @@ def home(request):
         request,
         #'app/home.html',
         'app/try_0930.html',
-        context_instance = RequestContext(request)       )
+        context_instance = RequestContext(request,{
+            'title':'LinkitGo'}))
 
 def contact(request):
     """Renders the contact page."""
